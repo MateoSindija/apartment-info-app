@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "705355982680",
+    "project_id": "apartment-info-app",
+    "storage_bucket": "apartment-info-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705355982680:android:f9050ba5a03583bb3be72d",
+        "android_client_info": {
+          "package_name": "com.example.apartmentinfoapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACBPVMgGmNyHk0FTR9rHc0p1bMjLWCTkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
