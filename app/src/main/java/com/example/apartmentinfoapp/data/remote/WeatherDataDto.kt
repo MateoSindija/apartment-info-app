@@ -23,4 +23,5 @@ data class WeatherDataDto(
     @field:Json(name = "wind_direction_10m")
     val windDirection: List<Int>,
 
+
 )

@@ -7,3 +7,9 @@ data class WeatherState(
     val isLoading: Boolean = false,
     val error: String? = null
 )
+
+data class MultipleWeatherState(
+    val weatherInfoList: List<WeatherInfo?>? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null
+)

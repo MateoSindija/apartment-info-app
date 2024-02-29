@@ -1,5 +1,6 @@
 package com.example.apartmentinfoapp.presentation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ fun renderText(type: String, state: WeatherState): String {
 fun InfoCardSmall(type: String, drawable: Int, state: WeatherState) {
     val blueColor = colorResource(id = R.color.tufts_blue)
     val blackColor = colorResource(id = R.color.space_cadet)
+
     // First column
     Box(
         modifier = Modifier

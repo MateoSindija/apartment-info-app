@@ -9,4 +9,11 @@ interface WeatherApi {
         @Query("latitude") lat: Double,
         @Query("longitude") long: Double
     ): WeatherDto
+
+
+    @GET("v1/forecast?hourly=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,pressure_msl,precipitation_probability,wind_direction_10m,visibility&daily=sunrise,sunset&timezone=Europe%2FBerlin")
+    suspend fun getMultipleWeatherData(
+        @Query(value = "latitude", encoded = true) lat: String,
+        @Query(value = "longitude", encoded = true) long: String
+    ): List<WeatherDto>
 }

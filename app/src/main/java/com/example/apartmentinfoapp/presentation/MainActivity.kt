@@ -1,7 +1,9 @@
 package com.example.apartmentinfoapp.presentation
 
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -40,8 +42,47 @@ import com.example.apartmentinfoapp.presentation.ui.theme.ApartmentInfoAppTheme
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.apartmentinfoapp.domain.location.LocationTracker
 import dagger.hilt.android.AndroidEntryPoint
+
+fun distanceBetweenPointsInKm(
+    startLat: Double?,
+    startLng: Double?,
+    endLat: Double?,
+    endLng: Double?
+): Int {
+
+    val locationDistanceResult = floatArrayOf(0.0f, 0.0f, 0.0f)
+    Location.distanceBetween(
+        startLat ?: 0.0,
+        startLng ?: 0.0,
+        endLat ?: 0.0,
+        endLng ?: 0.0,
+        locationDistanceResult
+    )
+
+    return (locationDistanceResult[0] / 1000).toInt()
+}
+fun distanceBetweenPointsInM(
+    startLat: Double?,
+    startLng: Double?,
+    endLat: Double?,
+    endLng: Double?
+): Int {
+
+    val locationDistanceResult = floatArrayOf(0.0f, 0.0f, 0.0f)
+    Location.distanceBetween(
+        startLat ?: 0.0,
+        startLng ?: 0.0,
+        endLat ?: 0.0,
+        endLng ?: 0.0,
+        locationDistanceResult
+    )
+
+    return (locationDistanceResult[0]).toInt()
+}
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -65,8 +106,6 @@ class MainActivity : ComponentActivity() {
                 android.Manifest.permission.INTERNET
             )
         )
-
-
 
 
         setContent {
@@ -143,7 +182,7 @@ class MainActivity : ComponentActivity() {
                             }
                             Spacer(modifier = Modifier.height(40.dp))
                             Text(
-                                text = "Beaches",
+                                text = "Beaches (${viewModelBeaches.state.beachInfo?.size})",
                                 style = Typography.bodyLarge,
                                 color = colorResource(id = R.color.space_cadet),
                                 fontWeight = FontWeight(500)
@@ -152,9 +191,12 @@ class MainActivity : ComponentActivity() {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(210.dp)
+                                    .height(235.dp)
                             ) {
-                                BeachesList(viewModelBeaches.state, Modifier.weight(3f))
+                                BeachesList(viewModelBeaches.state, Modifier.weight(4f))
+                                Column(modifier = Modifier.weight(1f)) {
+
+                                }
                             }
                         }
                     }

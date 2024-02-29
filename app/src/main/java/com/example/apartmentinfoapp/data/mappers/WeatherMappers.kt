@@ -20,7 +20,7 @@ private data class IndexedWeatherData(
     val data: WeatherData
 )
 
- data class IndexedDailyLengthData(
+data class IndexedDailyLengthData(
     val index: Int,
     val data: DailyLengthData
 )
@@ -38,6 +38,7 @@ fun WeatherDataDto.toWeatherDataMap(): Map<Int, List<WeatherData>> {
         val windDirection = windDirection[index]
         IndexedWeatherData(
             index = index,
+
             data = WeatherData(
                 time = LocalDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME),
                 temperatureCelsius = temperature,
@@ -74,6 +75,28 @@ fun DailyLengthDataDto.toDailyDataMap(): List<IndexedDailyLengthData> {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
+fun List<WeatherDto>.toMultipleWeatherInfo(): List<WeatherInfo> {
+    return this.map { weatherDto ->
+        val weatherDataMap = weatherDto.weatherData.toWeatherDataMap()
+        val dailyLengthDataMap = weatherDto.dailyLengthData.toDailyDataMap()
+        val now = LocalDateTime.now()
+
+        val currentWeatherData = weatherDataMap[0]?.find {
+            val hour = if (now.minute < 30) now.hour else now.hour + 1
+            it.time.hour == hour
+        }
+
+        WeatherInfo(
+            currentDayLengthData = dailyLengthDataMap[0],
+            weatherDataPerDay = weatherDataMap,
+            currentWeatherData = currentWeatherData,
+            latitude = weatherDto.latitude,
+            longitude = weatherDto.longitude,
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 fun WeatherDto.toWeatherInfo(): WeatherInfo {
     val weatherDataMap = weatherData.toWeatherDataMap()
     val dailyLengthDataMap = dailyLengthData.toDailyDataMap()
@@ -88,7 +111,9 @@ fun WeatherDto.toWeatherInfo(): WeatherInfo {
 
 
     return WeatherInfo(
-        currentDayLengthData = dailyLengthDataMap[0] ,
+        currentDayLengthData = dailyLengthDataMap[0],
+        latitude = latitude,
+        longitude = longitude,
         weatherDataPerDay = weatherDataMap,
         currentWeatherData = currentWeatherData
     )

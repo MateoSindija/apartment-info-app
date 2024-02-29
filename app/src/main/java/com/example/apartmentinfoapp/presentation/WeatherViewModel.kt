@@ -3,6 +3,7 @@ package com.example.apartmentinfoapp.presentation
 import android.util.Log
 import com.example.apartmentinfoapp.domain.repository.WeatherRepository
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -22,6 +23,10 @@ class WeatherViewModel @Inject constructor(
     var state by mutableStateOf(WeatherState())
         private set
 
+    var multipleWeather by mutableStateOf(MultipleWeatherState())
+        private set
+
+
     fun loadWeatherInfo() {
         viewModelScope.launch {
             state = state.copy(
@@ -31,6 +36,7 @@ class WeatherViewModel @Inject constructor(
             locationTracker.getCurrentLocation()?.let { location ->
                 when (val result =
                     repository.getWeatherData(location.latitude, location.longitude)) {
+
                     is Resource.Success -> {
                         state = state.copy(
                             weatherInfo = result.data,
@@ -54,6 +60,35 @@ class WeatherViewModel @Inject constructor(
                     error = "Couldn't retrieve location. Make sure to grant permission and enable GPS."
                 )
             }
+        }
+    }
+
+    fun loadMultipleWeatherInfo(latList: String, lngList: String) {
+        viewModelScope.launch {
+            multipleWeather = multipleWeather.copy(
+                isLoading = true,
+                error = null
+            )
+            when (val result =
+                repository.getMultipleWeatherData(latList, lngList)) {
+                is Resource.Success -> {
+                    multipleWeather = multipleWeather.copy(
+                        weatherInfoList = result.data,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+
+                is Resource.Error -> {
+                    multipleWeather = multipleWeather.copy(
+                        weatherInfoList = null,
+                        isLoading = false,
+                        error = result.message
+                    )
+                }
+            }
+
+
         }
     }
 }
