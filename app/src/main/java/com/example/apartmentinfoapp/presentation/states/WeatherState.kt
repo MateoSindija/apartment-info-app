@@ -1,4 +1,4 @@
-package com.example.apartmentinfoapp.presentation
+package com.example.apartmentinfoapp.presentation.states
 
 import com.example.apartmentinfoapp.domain.weather.WeatherInfo
 

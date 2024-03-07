@@ -1,6 +1,5 @@
-package com.example.apartmentinfoapp.presentation
+package com.example.apartmentinfoapp.presentation.composables
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apartmentinfoapp.R
+import com.example.apartmentinfoapp.presentation.states.WeatherState
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
 import kotlin.math.roundToInt
 

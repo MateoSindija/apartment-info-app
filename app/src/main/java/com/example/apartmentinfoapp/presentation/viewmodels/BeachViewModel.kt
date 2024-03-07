@@ -1,15 +1,15 @@
-package com.example.apartmentinfoapp.presentation
+package com.example.apartmentinfoapp.presentation.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apartmentinfoapp.domain.location.LocationTracker
-import com.example.apartmentinfoapp.domain.repository.BeachesListRepository
+import com.example.apartmentinfoapp.domain.repository.BeachesRepository
 import com.example.apartmentinfoapp.domain.repository.WeatherRepository
 import com.example.apartmentinfoapp.domain.util.Resource
+import com.example.apartmentinfoapp.presentation.states.BeachState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BeachViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
-    private val repository: BeachesListRepository,
+    private val repository: BeachesRepository,
     private val locationTracker: LocationTracker
 ) : ViewModel() {
     var state by mutableStateOf(BeachState())

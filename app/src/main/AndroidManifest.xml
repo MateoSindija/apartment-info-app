@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".ApartmentInfoApp"
         android:allowBackup="true"
@@ -16,10 +17,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ApartmentInfoApp"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.ApartmentInfoApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,6 +31,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".presentation.AttractionActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ApartmentInfoApp" />
     </application>
 
 </manifest>

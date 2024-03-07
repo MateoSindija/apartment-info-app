@@ -1,16 +1,15 @@
 package com.example.apartmentinfoapp.data.repository
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.apartmentinfoapp.domain.beaches.BeachData
-import com.example.apartmentinfoapp.domain.repository.BeachesListRepository
+import com.example.apartmentinfoapp.domain.repository.BeachesRepository
 import com.example.apartmentinfoapp.domain.util.Resource
 import javax.inject.Inject
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-class BeachesListRepositoryImpl @Inject constructor() : BeachesListRepository {
+class BeachesRepositoryImpl @Inject constructor() : BeachesRepository {
     private val fireStoreDatabase = FirebaseFirestore.getInstance()
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -54,6 +54,7 @@ fun ApartmentInfoAppTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -64,6 +65,7 @@ fun ApartmentInfoAppTheme(
     }
 
     MaterialTheme(
+
         colorScheme = colorScheme,
         typography = Typography,
         content = content

@@ -7,7 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="tufts_blue">#1A64A7</color>
+    <color name="tufts_blue">#35A3DD</color>
     <color name="space_cadet">#223448</color>
     <color name="philippine_gray">#8B8F93</color>
+    <color name="yellow_crayola">#FBAE1F</color>
+    <color name="light_gray">#D2D7D1</color>
+    <color name="davy_grey">#5E5E5E</color>
 </resources>
