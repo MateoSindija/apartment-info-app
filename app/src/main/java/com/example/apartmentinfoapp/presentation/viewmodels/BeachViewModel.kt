@@ -1,8 +1,5 @@
 package com.example.apartmentinfoapp.presentation.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apartmentinfoapp.domain.location.LocationTracker
@@ -11,6 +8,9 @@ import com.example.apartmentinfoapp.domain.repository.WeatherRepository
 import com.example.apartmentinfoapp.domain.util.Resource
 import com.example.apartmentinfoapp.presentation.states.BeachState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,12 +21,11 @@ class BeachViewModel @Inject constructor(
     private val repository: BeachesRepository,
     private val locationTracker: LocationTracker
 ) : ViewModel() {
-    var state by mutableStateOf(BeachState())
-        private set
-
+    private val _state = MutableStateFlow(BeachState())
+    val state: StateFlow<BeachState> get() = _state.asStateFlow()
     fun loadBeachesInfo() {
         viewModelScope.launch {
-            state = state.copy(
+            _state.value = _state.value.copy(
                 isLoading = true,
                 error = null
             )
@@ -40,10 +39,11 @@ class BeachViewModel @Inject constructor(
                             weatherRepository.getMultipleWeatherData(latList, lngList)) {
 
                             is Resource.Success -> {
-                                beachData.data?.forEachIndexed  {index,it ->
-                                    it.weatherData = weatherResult.data?.get(index)?.currentWeatherData
+                                beachData.data?.forEachIndexed { index, it ->
+                                    it.weatherData =
+                                        weatherResult.data?.get(index)?.currentWeatherData
                                 }
-                                state = state.copy(
+                                _state.value = _state.value.copy(
                                     beachInfo = beachData.data,
                                     mineLat = location.latitude,
                                     mineLng = location.longitude,
@@ -53,7 +53,7 @@ class BeachViewModel @Inject constructor(
                             }
 
                             is Resource.Error -> {
-                                state = state.copy(
+                                _state.value = _state.value.copy(
                                     beachInfo = null,
                                     isLoading = false,
                                     error = beachData.message
@@ -64,7 +64,7 @@ class BeachViewModel @Inject constructor(
 
                     }
             } ?: kotlin.run {
-                state = state.copy(
+                _state.value = _state.value.copy(
                     isLoading = false,
                     error = "Couldn't retrieve location. Make sure to grant permission and enable GPS."
                 )

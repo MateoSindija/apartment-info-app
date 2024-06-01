@@ -17,12 +17,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ApartmentInfoApp"
         tools:targetApi="31">
+        <activity
+            android:name=".presentation.activities.AboutUsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_about_us"
+            android:theme="@style/Theme.ApartmentInfoApp" />
+        <activity
+            android:name=".presentation.activities.ReviewActivity"
+            android:exported="false"
+            android:label="@string/title_activity_review"
+            android:theme="@style/Theme.ApartmentInfoApp" />
+        <activity
+            android:name=".presentation.activities.MessageActivity"
+            android:exported="false"
+            android:label="@string/title_activity_message"
+            android:theme="@style/Theme.ApartmentInfoApp" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name=".presentation.MainActivity"
+            android:name=".presentation.activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.ApartmentInfoApp">
             <intent-filter>
@@ -32,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.AttractionActivity"
+            android:name=".presentation.activities.AttractionActivity"
             android:exported="true"
             android:theme="@style/Theme.ApartmentInfoApp" />
     </application>

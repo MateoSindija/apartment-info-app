@@ -60,5 +60,27 @@ fun CardsList(state: CommonDataState) {
                 }
             }
         }
+        is CommonDataState.ShopCardList -> {
+            state.let { data ->
+                if (data.shopState?.shopsInfoList?.isNotEmpty() == true) {
+                    LazyRow(content = {
+                        items(count = data.shopState.shopsInfoList.size, key = {
+                            data.shopState.shopsInfoList[it]?.id
+                                ?: ""
+                        }, itemContent = { index ->
+                            AttractionCard(
+                                CommonCardData.ShopCard(
+                                    data.shopState.shopsInfoList[index],
+                                    data.shopState.mineLat,
+                                    data.shopState.mineLng
+                                )
+                            )
+                            Spacer(modifier = Modifier.width(30.dp))
+
+                        })
+                    })
+                }
+            }
+        }
     }
 }

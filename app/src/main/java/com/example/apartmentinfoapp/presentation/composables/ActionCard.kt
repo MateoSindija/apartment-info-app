@@ -38,7 +38,7 @@ fun ActionCard(
     description: String,
     imageId: Int,
     btnText: String,
-    onClick: () -> Unit
+    handleClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -79,7 +79,7 @@ fun ActionCard(
                     )
                 }
                 OutlinedButton(
-                    onClick = { onClick }, shape = RoundedCornerShape(50),
+                    onClick = handleClick, shape = RoundedCornerShape(50),
                     border = BorderStroke(1.dp, colorResource(id = R.color.tufts_blue)),
                     modifier = Modifier
                         .padding(horizontal = 5.dp)

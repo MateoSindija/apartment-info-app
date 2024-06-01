@@ -19,7 +19,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -29,20 +28,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.apartmentinfoapp.R
-import com.example.apartmentinfoapp.presentation.AttractionActivity
-import com.example.apartmentinfoapp.presentation.distanceBetweenPointsInKm
+import com.example.apartmentinfoapp.presentation.activities.AttractionActivity
+import com.example.apartmentinfoapp.presentation.activities.distanceBetweenPoints
 import com.example.apartmentinfoapp.presentation.models.CommonCardData
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
 
- fun imageUrl(data: CommonCardData): String {
+fun imageUrl(data: CommonCardData): String {
     return when (data) {
         is CommonCardData.BeachCard -> data.beachData?.imagesUrl?.get(0) ?: ""
         is CommonCardData.RestaurantCard -> data.restaurantData?.imagesUrl?.get(0) ?: ""
+        is CommonCardData.SightCard -> data.sightsData?.imagesUrl?.get(0) ?: ""
+        is CommonCardData.ShopCard -> data.shopData?.imagesUrl?.get(0) ?: ""
     }
 }
 
@@ -50,24 +51,37 @@ fun title(data: CommonCardData): String {
     return when (data) {
         is CommonCardData.BeachCard -> data.beachData?.title ?: ""
         is CommonCardData.RestaurantCard -> data.restaurantData?.title ?: ""
+        is CommonCardData.SightCard -> data.sightsData?.title ?: ""
+        is CommonCardData.ShopCard -> data.shopData?.title ?: ""
     }
 }
 
 fun distance(data: CommonCardData): String {
     return when (data) {
-        is CommonCardData.BeachCard -> distanceBetweenPointsInKm(
+        is CommonCardData.BeachCard -> distanceBetweenPoints(
             data.mineLat,
             data.mineLng,
             data.beachData?.lat,
             data.beachData?.lng
-        ).toString()
+        )
 
-        is CommonCardData.RestaurantCard -> distanceBetweenPointsInKm(
+        is CommonCardData.RestaurantCard -> distanceBetweenPoints(
             data.mineLat,
             data.mineLng,
             data.restaurantData?.lat,
             data.restaurantData?.lng
-        ).toString()
+        )
+
+        is CommonCardData.ShopCard -> distanceBetweenPoints(
+            data.mineLat,
+            data.mineLng,
+            data.shopData?.lat,
+            data.shopData?.lng
+        )
+
+        else -> {
+            ""
+        }
     }
 }
 
@@ -125,7 +139,9 @@ fun AttractionCard(
                 Text(
                     text = title(data), style = Typography.bodyLarge,
                     color = colorResource(id = R.color.space_cadet),
-                    fontWeight = FontWeight(500)
+                    fontWeight = FontWeight(500),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -138,9 +154,8 @@ fun AttractionCard(
                     )
                     Spacer(Modifier.width(5.dp))
                     Text(
-                        text = "${
-                            distance(data)
-                        } km", style = Typography.bodyMedium,
+                        text =
+                        distance(data), style = Typography.bodyMedium,
                         color = colorResource(id = R.color.philippine_gray),
                         fontWeight = FontWeight(500)
                     )
@@ -189,7 +204,7 @@ fun AttractionCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
                                     painter = painterResource(
-                                        id = R.drawable.ic_star,
+                                        id = R.drawable.ic_star_full,
                                     ), contentDescription = "star",
                                     modifier = Modifier.height(16.dp)
                                 )
@@ -209,6 +224,10 @@ fun AttractionCard(
                                 )
 
                             }
+                        }
+
+                        else -> {
+
                         }
                     }
                 }

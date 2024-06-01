@@ -1,16 +1,16 @@
 package com.example.apartmentinfoapp.presentation.viewmodels
 
-import com.example.apartmentinfoapp.domain.repository.WeatherRepository
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apartmentinfoapp.domain.location.LocationTracker
+import com.example.apartmentinfoapp.domain.repository.WeatherRepository
 import com.example.apartmentinfoapp.domain.util.Resource
 import com.example.apartmentinfoapp.presentation.states.MultipleWeatherState
 import com.example.apartmentinfoapp.presentation.states.WeatherState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,17 +19,17 @@ class WeatherViewModel @Inject constructor(
     private val repository: WeatherRepository,
     private val locationTracker: LocationTracker
 ) : ViewModel() {
+    private val _state = MutableStateFlow(WeatherState())
+    val state: StateFlow<WeatherState> get() = _state.asStateFlow()
 
-    var state by mutableStateOf(WeatherState())
-        private set
 
-    var multipleWeather by mutableStateOf(MultipleWeatherState())
-        private set
+    private val _multipleWeatherState = MutableStateFlow(MultipleWeatherState())
+    val multipleWeatherState: StateFlow<MultipleWeatherState> get() = _multipleWeatherState.asStateFlow()
 
 
     fun loadWeatherInfo() {
         viewModelScope.launch {
-            state = state.copy(
+            _state.value = _state.value.copy(
                 isLoading = true,
                 error = null
             )
@@ -38,7 +38,7 @@ class WeatherViewModel @Inject constructor(
                     repository.getWeatherData(location.latitude, location.longitude)) {
 
                     is Resource.Success -> {
-                        state = state.copy(
+                        _state.value = _state.value.copy(
                             weatherInfo = result.data,
                             isLoading = false,
                             error = null
@@ -46,7 +46,7 @@ class WeatherViewModel @Inject constructor(
                     }
 
                     is Resource.Error -> {
-                        state = state.copy(
+                        _state.value = _state.value.copy(
                             weatherInfo = null,
                             isLoading = false,
                             error = result.message
@@ -55,7 +55,7 @@ class WeatherViewModel @Inject constructor(
                 }
 
             } ?: kotlin.run {
-                state = state.copy(
+                _state.value = _state.value.copy(
                     isLoading = false,
                     error = "Couldn't retrieve location. Make sure to grant permission and enable GPS."
                 )
@@ -65,14 +65,14 @@ class WeatherViewModel @Inject constructor(
 
     fun loadMultipleWeatherInfo(latList: String, lngList: String) {
         viewModelScope.launch {
-            multipleWeather = multipleWeather.copy(
+            _multipleWeatherState.value = _multipleWeatherState.value.copy(
                 isLoading = true,
                 error = null
             )
             when (val result =
                 repository.getMultipleWeatherData(latList, lngList)) {
                 is Resource.Success -> {
-                    multipleWeather = multipleWeather.copy(
+                    _multipleWeatherState.value = _multipleWeatherState.value.copy(
                         weatherInfoList = result.data,
                         isLoading = false,
                         error = null
@@ -80,7 +80,7 @@ class WeatherViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    multipleWeather = multipleWeather.copy(
+                    _multipleWeatherState.value = _multipleWeatherState.value.copy(
                         weatherInfoList = null,
                         isLoading = false,
                         error = result.message
