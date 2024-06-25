@@ -2,7 +2,6 @@ package com.example.apartmentinfoapp.presentation.composables
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,7 +24,7 @@ fun CardsList(state: CommonDataState) {
                         }, itemContent = { index ->
                             AttractionCard(
                                 CommonCardData.BeachCard(
-                                   data.beachState.beachInfo[index],
+                                    data.beachState.beachInfo[index],
                                     data.beachState.mineLat,
                                     data.beachState.mineLng
                                 )
@@ -60,6 +59,7 @@ fun CardsList(state: CommonDataState) {
                 }
             }
         }
+
         is CommonDataState.ShopCardList -> {
             state.let { data ->
                 if (data.shopState?.shopsInfoList?.isNotEmpty() == true) {
@@ -82,5 +82,7 @@ fun CardsList(state: CommonDataState) {
                 }
             }
         }
+
+        else -> {}
     }
 }

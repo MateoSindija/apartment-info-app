@@ -1,8 +1,9 @@
 package com.example.apartmentinfoapp.presentation.composables
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -12,20 +13,27 @@ import androidx.compose.ui.Modifier
 fun PullToRefreshComponent(
     isLoadingStates: List<Boolean>,
     modifier: Modifier,
+    pullToRefreshState: PullToRefreshState,
     refreshData: () -> Unit,
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
 
+    Log.d("tu smo", pullToRefreshState.isRefreshing.toString())
     fun isContentLoading(): Boolean {
         return isLoadingStates.any { it }
     }
 
-    LaunchedEffect(pullToRefreshState.isRefreshing) {
-        if (pullToRefreshState.isRefreshing) {
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
             refreshData()
-            pullToRefreshState.endRefresh()
         }
     }
+
+//
+//    LaunchedEffect(pullToRefreshState.isRefreshing) {
+//        if (pullToRefreshState.isRefreshing) {
+//            refreshData()
+//        }
+//    }
 
     LaunchedEffect(isLoadingStates) {
         if (isContentLoading()) {

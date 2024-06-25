@@ -48,9 +48,12 @@ import com.example.apartmentinfoapp.presentation.composables.InfoCardBig
 import com.example.apartmentinfoapp.presentation.composables.InfoCardSmall
 import com.example.apartmentinfoapp.presentation.composables.PullToRefreshComponent
 import com.example.apartmentinfoapp.presentation.composables.SightGrid
+import com.example.apartmentinfoapp.presentation.composables.launchNextActivity
+import com.example.apartmentinfoapp.presentation.models.CommonCardData
 import com.example.apartmentinfoapp.presentation.models.CommonDataState
 import com.example.apartmentinfoapp.presentation.ui.theme.ApartmentInfoAppTheme
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
+import com.example.apartmentinfoapp.presentation.viewmodels.AboutUsViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.BeachViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.DevicesViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.RestaurantViewModel
@@ -121,6 +124,7 @@ class MainActivity : ComponentActivity() {
     private val viewModelRestaurants: RestaurantViewModel by viewModels()
     private val viewModelSights: SightViewModel by viewModels()
     private val viewModelShops: ShopViewModel by viewModels()
+    private val viewModelAboutUs: AboutUsViewModel by viewModels()
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -165,7 +169,6 @@ class MainActivity : ComponentActivity() {
         }
 
 
-
         setContent {
             val pullToRefreshState = rememberPullToRefreshState()
             val beachState by viewModelBeaches.state.collectAsState()
@@ -176,13 +179,12 @@ class MainActivity : ComponentActivity() {
             val shopsState by viewModelShops.state.collectAsState()
 
 
-            ActivityLayout() {
+            ActivityLayout(modifier = Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 40.dp, bottom = 15.dp, top = 15.dp, end = 40.dp)
                         .verticalScroll(rememberScrollState())
-                        .nestedScroll(pullToRefreshState.nestedScrollConnection),
                 ) {
                     PullToRefreshComponent(
                         isLoadingStates = listOf(
@@ -193,6 +195,7 @@ class MainActivity : ComponentActivity() {
                             sightsState.isLoading,
                             shopsState.isLoading
                         ),
+                        pullToRefreshState = pullToRefreshState,
                         modifier = Modifier.align(CenterHorizontally)
                     ) { loadData() }
 
@@ -341,9 +344,10 @@ class MainActivity : ComponentActivity() {
                             imageId = R.drawable.about_svgrepo_com,
                             btnText = "About us"
                         ) {
-                            val attractionIntent =
-                                Intent(this@MainActivity, AttractionActivity::class.java)
-                            startActivity(attractionIntent)
+                            launchNextActivity(
+                                CommonCardData.AboutUsCard(viewModelAboutUs.state.value.aboutUsInfo),
+                                this@MainActivity
+                            )
                         }
 
                     }
@@ -379,6 +383,7 @@ class MainActivity : ComponentActivity() {
         viewModelSights.loadSightsInfo()
         viewModelBeaches.loadBeachesInfo()
         viewModelShops.loadShopsInfo()
+        viewModelAboutUs.loadAboutUsInfo()
     }
 }
 

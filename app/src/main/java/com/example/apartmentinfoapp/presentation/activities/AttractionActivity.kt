@@ -56,8 +56,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.apartmentinfoapp.R
 import com.example.apartmentinfoapp.presentation.composables.ActivityLayout
-import com.example.apartmentinfoapp.presentation.composables.imageUrl
 import com.example.apartmentinfoapp.presentation.composables.title
+import com.example.apartmentinfoapp.presentation.composables.titleImageUrl
 import com.example.apartmentinfoapp.presentation.models.CommonCardData
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
 import com.google.android.gms.maps.model.CameraPosition
@@ -89,6 +89,13 @@ class AttractionActivity : ComponentActivity() {
 
                     is CommonCardData.ShopCard -> commonCardData.shopData?.imagesUrl
                         ?: listOf("")
+
+                    is CommonCardData.DeviceCard -> commonCardData.deviceData?.imagesUrl
+                        ?: listOf("")
+
+                    else -> {
+                        listOf("")
+                    }
                 }
                 val lat = when (commonCardData) {
                     is CommonCardData.RestaurantCard -> {
@@ -106,6 +113,10 @@ class AttractionActivity : ComponentActivity() {
                     is CommonCardData.ShopCard -> {
                         commonCardData.shopData?.lat ?: 0.0
                     }
+
+                    else -> {
+                        0.0
+                    }
                 }
                 val lng = when (commonCardData) {
                     is CommonCardData.RestaurantCard -> {
@@ -122,6 +133,10 @@ class AttractionActivity : ComponentActivity() {
 
                     is CommonCardData.ShopCard -> {
                         commonCardData.shopData?.lng ?: 0.0
+                    }
+
+                    else -> {
+                        0.0
                     }
                 }
                 val attractionLocation =
@@ -143,7 +158,7 @@ class AttractionActivity : ComponentActivity() {
                         ) {
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current).data(
-                                    imageUrl(commonCardData)
+                                    titleImageUrl(commonCardData)
                                 ).crossfade(true).build(),
                                 placeholder = painterResource(id = R.drawable.ic_image_loading),
                                 contentDescription = "Beach Image",
@@ -196,7 +211,7 @@ class AttractionActivity : ComponentActivity() {
                             AboutText(commonCardData)
 
                             Row(modifier = Modifier.padding(top = 50.dp, bottom = 30.dp)) {
-                                if (commonCardData !is CommonCardData.ShopCard) {
+                                if (commonCardData !is CommonCardData.ShopCard && commonCardData !is CommonCardData.AboutUsCard) {
                                     TextButton(onClick = { componentState = "photos" }) {
                                         Text(
                                             text = "Photos",
@@ -217,13 +232,15 @@ class AttractionActivity : ComponentActivity() {
 
                                     }
                                 }
-                                TextButton(onClick = { componentState = "location" }) {
-                                    Text(
-                                        text = "Location",
-                                        color = colorResource(id = R.color.space_cadet),
-                                        fontWeight = FontWeight.W500,
-                                        fontSize = 20.sp
-                                    )
+                                if (commonCardData !is CommonCardData.AboutUsCard && commonCardData !is CommonCardData.DeviceCard) {
+                                    TextButton(onClick = { componentState = "location" }) {
+                                        Text(
+                                            text = "Location",
+                                            color = colorResource(id = R.color.space_cadet),
+                                            fontWeight = FontWeight.W500,
+                                            fontSize = 20.sp
+                                        )
+                                    }
                                 }
                             }
                             if (componentState == "photos") {
@@ -259,8 +276,8 @@ class AttractionActivity : ComponentActivity() {
                                     )
                                 }
                             } else if (componentState == "contacts" && commonCardData is CommonCardData.RestaurantCard) {
-                                Column() {
-                                    Row() {
+                                Column {
+                                    Row {
                                         Image(
                                             painter = painterResource(id = R.drawable.ic_phone_book),
                                             contentDescription = "phone book",
@@ -268,7 +285,14 @@ class AttractionActivity : ComponentActivity() {
                                                 .width(25.dp)
                                                 .height(25.dp)
                                         )
-                                        Spacer(modifier = Modifier.width(20.dp))
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Text(
+                                            text = "Phone number:",
+                                            color = colorResource(id = R.color.space_cadet),
+                                            fontWeight = FontWeight.W500,
+                                            fontSize = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.width(15.dp))
                                         Text(
                                             text = commonCardData.restaurantData?.contacts?.number
                                                 ?: "",
@@ -285,7 +309,14 @@ class AttractionActivity : ComponentActivity() {
                                                 .height(25.dp)
 
                                         )
-                                        Spacer(modifier = Modifier.width(20.dp))
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Text(
+                                            text = "Email:",
+                                            color = colorResource(id = R.color.space_cadet),
+                                            fontWeight = FontWeight.W500,
+                                            fontSize = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.width(15.dp))
                                         Text(
                                             text = commonCardData.restaurantData?.contacts?.email
                                                 ?: "",
@@ -510,6 +541,19 @@ fun RenderSubHeader(commonCardData: CommonCardData) {
                     )
                 }
             }
+
+            is CommonCardData.AboutUsCard -> {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = commonCardData.aboutUsData?.moto ?: "",
+                        style = Typography.bodyMedium,
+                        color = colorResource(id = R.color.light_gray),
+                        fontWeight = FontWeight(500)
+                    )
+                }
+            }
+
+            else -> {}
         }
 
     }
@@ -534,6 +578,14 @@ fun AboutText(commonCardData: CommonCardData) {
 
             is CommonCardData.ShopCard -> {
                 commonCardData.shopData?.description ?: ""
+            }
+
+            is CommonCardData.AboutUsCard -> {
+                commonCardData.aboutUsData?.aboutUs ?: ""
+            }
+
+            is CommonCardData.DeviceCard -> {
+                commonCardData.deviceData?.description ?: ""
             }
         },
         color = colorResource(id = R.color.davy_grey),

@@ -8,11 +8,11 @@ import androidx.compose.ui.graphics.Color
 import com.example.apartmentinfoapp.presentation.ui.theme.ApartmentInfoAppTheme
 
 @Composable
-fun ActivityLayout(content: @Composable() () -> Unit) {
+fun ActivityLayout(modifier: Modifier? = Modifier, content: @Composable() () -> Unit) {
     ApartmentInfoAppTheme {
         // A surface container using the 'background' color from the theme
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier?.fillMaxSize() ?: Modifier.fillMaxSize(),
             color = Color(0xFFF2F4F5)
         ) {
             content()

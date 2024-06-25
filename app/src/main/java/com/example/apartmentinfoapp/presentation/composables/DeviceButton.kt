@@ -1,10 +1,10 @@
 package com.example.apartmentinfoapp.presentation.composables
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -17,24 +17,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.apartmentinfoapp.R
 import com.example.apartmentinfoapp.domain.devices.DeviceData
+import com.example.apartmentinfoapp.presentation.models.CommonCardData
 
-fun handleClick() {
-
+fun handleClick(deviceData: DeviceData, context: Context) {
+    launchNextActivity(CommonCardData.DeviceCard(deviceData), context)
 }
 
 @Composable
 fun DeviceButton(deviceData: DeviceData) {
-
+    val context = LocalContext.current
     OutlinedButton(
-        onClick = { handleClick() }, shape = RoundedCornerShape(50),
+        onClick = { handleClick(deviceData, context) }, shape = RoundedCornerShape(50),
         border = BorderStroke(1.dp, Color.White),
         modifier = Modifier
             .padding(horizontal = 5.dp)

@@ -16,7 +16,7 @@ class AboutUsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ActivityLayout {
+            ActivityLayout() {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

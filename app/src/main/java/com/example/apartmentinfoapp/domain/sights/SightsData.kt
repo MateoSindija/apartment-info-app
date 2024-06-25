@@ -10,5 +10,6 @@ data class SightsData(
     val imagesUrl: List<String>? = null,
     val lat: Double? = null,
     val lng: Double? = null,
-    val id: String? = null
+    val id: String? = null,
+    val titleImage: String? = null
 ) : Parcelable

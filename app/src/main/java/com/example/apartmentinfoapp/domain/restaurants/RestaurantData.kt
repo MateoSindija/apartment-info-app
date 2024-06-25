@@ -21,4 +21,5 @@ data class RestaurantData(
     val imagesUrl: List<String>? = null,
     val lat: Double? = null,
     val lng: Double? = null,
+    val titleImage: String? = null
 ) : Parcelable

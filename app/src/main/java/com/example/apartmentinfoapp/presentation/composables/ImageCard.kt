@@ -1,7 +1,5 @@
 package com.example.apartmentinfoapp.presentation.composables
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,18 +42,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.apartmentinfoapp.R
 import com.example.apartmentinfoapp.domain.sights.SightsData
-import com.example.apartmentinfoapp.presentation.activities.AttractionActivity
 import com.example.apartmentinfoapp.presentation.activities.distanceBetweenPoints
 import com.example.apartmentinfoapp.presentation.models.CommonCardData
 
 
-fun launchNextActivity(data: CommonCardData.SightCard, context: Context) {
-    val attractionIntent = Intent(context, AttractionActivity::class.java)
-    attractionIntent.putExtra("data", data)
-    context.startActivity(attractionIntent)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageCard(
     modifier: Modifier,

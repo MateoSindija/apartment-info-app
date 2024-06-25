@@ -2,6 +2,7 @@ package com.example.apartmentinfoapp.presentation.composables
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,18 +33,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.apartmentinfoapp.BuildConfig
 import com.example.apartmentinfoapp.R
 import com.example.apartmentinfoapp.presentation.activities.AttractionActivity
 import com.example.apartmentinfoapp.presentation.activities.distanceBetweenPoints
 import com.example.apartmentinfoapp.presentation.models.CommonCardData
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
 
-fun imageUrl(data: CommonCardData): String {
+
+fun titleImageUrl(data: CommonCardData): Any {
     return when (data) {
-        is CommonCardData.BeachCard -> data.beachData?.imagesUrl?.get(0) ?: ""
-        is CommonCardData.RestaurantCard -> data.restaurantData?.imagesUrl?.get(0) ?: ""
-        is CommonCardData.SightCard -> data.sightsData?.imagesUrl?.get(0) ?: ""
-        is CommonCardData.ShopCard -> data.shopData?.imagesUrl?.get(0) ?: ""
+        is CommonCardData.ShopCard -> data.shopData?.titleImage ?: ""
+        is CommonCardData.RestaurantCard -> data.restaurantData?.titleImage
+            ?: ""
+
+        is CommonCardData.BeachCard -> data.beachData?.titleImage ?: ""
+        is CommonCardData.SightCard -> data.sightsData?.titleImage ?: ""
+        is CommonCardData.DeviceCard -> data.deviceData?.titleImage ?: ""
+        is CommonCardData.AboutUsCard -> Uri.parse("android.resource://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.about_us_photo);
     }
 }
 
@@ -53,6 +60,8 @@ fun title(data: CommonCardData): String {
         is CommonCardData.RestaurantCard -> data.restaurantData?.title ?: ""
         is CommonCardData.SightCard -> data.sightsData?.title ?: ""
         is CommonCardData.ShopCard -> data.shopData?.title ?: ""
+        is CommonCardData.DeviceCard -> data.deviceData?.title ?: ""
+        is CommonCardData.AboutUsCard -> "About Us"
     }
 }
 
@@ -120,7 +129,7 @@ fun AttractionCard(
 
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(
-                    imageUrl(data)
+                    titleImageUrl(data)
                 ).crossfade(true).build(),
                 placeholder = painterResource(id = R.drawable.ic_image_loading),
                 contentDescription = "Beach Image",
