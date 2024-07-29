@@ -1,5 +1,6 @@
 package com.example.apartmentinfoapp.data.repository
 
+import android.util.Log
 import com.example.apartmentinfoapp.domain.messages.MessageData
 import com.example.apartmentinfoapp.domain.repository.MessagesRepository
 import com.example.apartmentinfoapp.domain.util.Resource
@@ -28,7 +29,7 @@ class MessagesRepositoryImpl @Inject constructor() : MessagesRepository {
                         ?: emptyList()
                 val userMessages =
                     userMessagesSnapshot?.let { fetchMessages(it.reference, "user") } ?: emptyList()
-
+                Log.d("tu smo ej", userMessages.toString())
                 val combinedMessages = (ownerMessages + userMessages).sortedBy { it.timestamp }
                 Resource.Success(combinedMessages)
             }
