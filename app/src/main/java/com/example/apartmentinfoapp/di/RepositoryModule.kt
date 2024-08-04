@@ -3,6 +3,7 @@ package com.example.apartmentinfoapp.di
 import com.example.apartmentinfoapp.data.repository.AboutUsRepositoryImpl
 import com.example.apartmentinfoapp.data.repository.BeachesRepositoryImpl
 import com.example.apartmentinfoapp.data.repository.DevicesRepositoryImpl
+import com.example.apartmentinfoapp.data.repository.ReservationRepositoryImpl
 import com.example.apartmentinfoapp.data.repository.RestaurantRepositoryImpl
 import com.example.apartmentinfoapp.data.repository.ShopRepositoryImpl
 import com.example.apartmentinfoapp.data.repository.SightRepositoryImpl
@@ -10,6 +11,7 @@ import com.example.apartmentinfoapp.data.repository.WeatherRepositoryImpl
 import com.example.apartmentinfoapp.domain.repository.AboutUsRepository
 import com.example.apartmentinfoapp.domain.repository.BeachesRepository
 import com.example.apartmentinfoapp.domain.repository.DevicesRepository
+import com.example.apartmentinfoapp.domain.repository.ReservationRepository
 import com.example.apartmentinfoapp.domain.repository.RestaurantRepository
 import com.example.apartmentinfoapp.domain.repository.ShopRepository
 import com.example.apartmentinfoapp.domain.repository.SightRepository
@@ -67,4 +69,10 @@ abstract class RepositoryModule {
     abstract fun bindAboutUsRepository(
         aboutUsRepository: AboutUsRepositoryImpl
     ): AboutUsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReservationRepository(
+        reservationRepository: ReservationRepositoryImpl
+    ): ReservationRepository
 }

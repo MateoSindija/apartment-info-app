@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ApartmentInfoApp</string>
     <string name="title_activity_message">MessageActivity</string>
+    <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_review">ReviewActivity</string>
     <string name="title_activity_about_us">AboutUsActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
 </resources>

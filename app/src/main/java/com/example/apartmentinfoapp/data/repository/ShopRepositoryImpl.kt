@@ -1,30 +1,19 @@
 package com.example.apartmentinfoapp.data.repository
 
+import com.example.apartmentinfoapp.data.mappers.formatImages
+import com.example.apartmentinfoapp.data.remote.ApartmentApi
 import com.example.apartmentinfoapp.domain.repository.ShopRepository
-import com.example.apartmentinfoapp.domain.shops.ShopData
+import com.example.apartmentinfoapp.domain.shops.ShopDataDto
 import com.example.apartmentinfoapp.domain.util.Resource
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class ShopRepositoryImpl @Inject constructor() : ShopRepository {
-    private val fireStoreDatabase = FirebaseFirestore.getInstance()
+class ShopRepositoryImpl @Inject constructor(private val api: ApartmentApi) : ShopRepository {
 
-    override suspend fun getShopsList(lat: Double, lng: Double): Resource<List<ShopData>> {
+
+    override suspend fun getShopsList(apartmentId: String): Resource<List<ShopDataDto>> {
         return try {
-            val snapshot = fireStoreDatabase.collection("Shops").get().await()
 
-            if (snapshot.isEmpty) {
-                Resource.Success(data = emptyList())
-            } else {
-
-                val listOfShops = snapshot.documents.map { document ->
-                    val shopsData = document.toObject(ShopData::class.java)
-                        ?: throw Exception("Error converting document to ShopData")
-                    shopsData.copy(id = document.id)
-                }
-                Resource.Success(data = listOfShops)
-            }
+            Resource.Success(data = api.getShops(apartmentId).formatImages())
 
         } catch (e: Exception) {
             e.printStackTrace()

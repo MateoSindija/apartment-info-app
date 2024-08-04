@@ -2,10 +2,14 @@ package com.example.apartmentinfoapp.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apartmentinfoapp.data.interceptor.AccessTokenProvider
+import com.example.apartmentinfoapp.domain.beaches.BeachData
 import com.example.apartmentinfoapp.domain.location.LocationTracker
 import com.example.apartmentinfoapp.domain.repository.BeachesRepository
 import com.example.apartmentinfoapp.domain.repository.WeatherRepository
 import com.example.apartmentinfoapp.domain.util.Resource
+import com.example.apartmentinfoapp.presentation.activities.formatImageUrl
+import com.example.apartmentinfoapp.presentation.activities.formatImageUrls
 import com.example.apartmentinfoapp.presentation.states.BeachState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +23,8 @@ import javax.inject.Inject
 class BeachViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val repository: BeachesRepository,
-    private val locationTracker: LocationTracker
+    private val locationTracker: LocationTracker,
+    private val accessTokenProvider: AccessTokenProvider
 ) : ViewModel() {
     private val _state = MutableStateFlow(BeachState())
     val state: StateFlow<BeachState> get() = _state.asStateFlow()
@@ -30,21 +35,39 @@ class BeachViewModel @Inject constructor(
                 error = null
             )
             locationTracker.getCurrentLocation()?.let { location ->
-                repository.getBeachesList(lat = location.latitude, lng = location.longitude)
-                    .let { beachData ->
-                        val lngList = beachData.data?.map { it.lng }?.joinToString(",") ?: ""
-                        val latList = beachData.data?.map { it.lat }?.joinToString(",") ?: ""
+                val apartmentId = accessTokenProvider.getApartmentId()
+                repository.getBeachesList(
+                    apartmentId
+                )
+                    .let { beachDataDto ->
+                        val lngList =
+                            beachDataDto.data?.map { it.location.coordinates[1] }
+                                ?.joinToString(",") ?: ""
+                        val latList =
+                            beachDataDto.data?.map { it.location.coordinates[0] }
+                                ?.joinToString(",") ?: ""
 
                         when (val weatherResult =
                             weatherRepository.getMultipleWeatherData(latList, lngList)) {
-
                             is Resource.Success -> {
-                                beachData.data?.forEachIndexed { index, it ->
-                                    it.weatherData =
-                                        weatherResult.data?.get(index)?.currentWeatherData
+                                val beachData: MutableList<BeachData> = mutableListOf()
+                                beachDataDto.data?.forEachIndexed { index, it ->
+                                    beachData.add(
+                                        BeachData(
+                                            beachId = it.beachId,
+                                            description = it.description,
+                                            imagesUrl = formatImageUrls(it.imagesUrl),
+                                            location = it.location,
+                                            terrainType = it.terrainType,
+                                            title = it.title,
+                                            titleImage = formatImageUrl(it.titleImage),
+                                            weatherData = weatherResult.data?.get(index)?.currentWeatherData
+                                        )
+                                    )
+
                                 }
                                 _state.value = _state.value.copy(
-                                    beachInfo = beachData.data,
+                                    beachInfo = beachData,
                                     mineLat = location.latitude,
                                     mineLng = location.longitude,
                                     isLoading = false,
@@ -56,7 +79,7 @@ class BeachViewModel @Inject constructor(
                                 _state.value = _state.value.copy(
                                     beachInfo = null,
                                     isLoading = false,
-                                    error = beachData.message
+                                    error = beachDataDto.message
                                 )
                             }
                         }

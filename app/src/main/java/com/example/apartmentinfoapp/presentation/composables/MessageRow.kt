@@ -24,35 +24,29 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apartmentinfoapp.R
-import com.example.apartmentinfoapp.domain.messages.MessageData
+import com.example.apartmentinfoapp.domain.messages.Message
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 
 @Composable
-fun MessageRow(messageData: MessageData) {
-    when (messageData.userType) {
-        "user" -> Message(
+fun MessageRow(messageData: Message) {
+    when (messageData.isMessageMine) {
+        true -> Message(
             messageData = messageData,
             background = Color.Blue,
             position = Arrangement.End,
             textColor = Color.White
         )
 
-        "owner" -> Message(
+        false -> Message(
             messageData = messageData,
             background = colorResource(id = R.color.gains_boro),
             position = Arrangement.Start,
             textColor = Color.Black
         )
 
-        else -> Message(
-            messageData = messageData,
-            background = Color.Blue,
-            position = Arrangement.End,
-            textColor = Color.White
-        )
     }
 }
 
@@ -64,7 +58,7 @@ fun formatDate(date: Date): String {
 
 @Composable
 fun Message(
-    messageData: MessageData,
+    messageData: Message,
     background: Color,
     position: Arrangement.Horizontal,
     textColor: Color
@@ -89,7 +83,7 @@ fun Message(
                     .padding(horizontal = 8.dp, vertical = 5.dp)
                     .clickable { isTimeVisible = !isTimeVisible }
             ) {
-                messageData.message?.let {
+                messageData.text.let {
                     Text(
                         text = it,
                         color = textColor,
@@ -97,7 +91,7 @@ fun Message(
                 }
             }
             if (isTimeVisible) {
-                Text(text = messageData.timestamp?.let { formatDate(it) } ?: "", fontSize = 12.sp)
+                Text(text = messageData.timestamp.toString(), fontSize = 12.sp)
             }
         }
     }

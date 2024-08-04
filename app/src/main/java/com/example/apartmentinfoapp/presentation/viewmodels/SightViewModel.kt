@@ -2,6 +2,7 @@ package com.example.apartmentinfoapp.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apartmentinfoapp.data.interceptor.AccessTokenProvider
 import com.example.apartmentinfoapp.domain.location.LocationTracker
 import com.example.apartmentinfoapp.domain.repository.SightRepository
 import com.example.apartmentinfoapp.domain.util.Resource
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SightViewModel @Inject constructor(
     private val repository: SightRepository,
-    private val locationTracker: LocationTracker
+    private val locationTracker: LocationTracker,
+    private val accessTokenProvider: AccessTokenProvider
 ) :
     ViewModel() {
     private val _state = MutableStateFlow(SightsState())
@@ -30,9 +32,9 @@ class SightViewModel @Inject constructor(
                 error = null
             )
             locationTracker.getCurrentLocation()?.let { location ->
+                val apartmentId = accessTokenProvider.getApartmentId()
                 when (val result = repository.getSights(
-                    lat = location.latitude,
-                    lng = location.longitude
+                    apartmentId
                 )) {
                     is Resource.Success -> {
                         _state.value = _state.value.copy(

@@ -2,7 +2,6 @@ package com.example.apartmentinfoapp.presentation.composables
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.apartmentinfoapp.BuildConfig
 import com.example.apartmentinfoapp.R
 import com.example.apartmentinfoapp.presentation.activities.AttractionActivity
 import com.example.apartmentinfoapp.presentation.activities.distanceBetweenPoints
@@ -50,7 +48,7 @@ fun titleImageUrl(data: CommonCardData): Any {
         is CommonCardData.BeachCard -> data.beachData?.titleImage ?: ""
         is CommonCardData.SightCard -> data.sightsData?.titleImage ?: ""
         is CommonCardData.DeviceCard -> data.deviceData?.titleImage ?: ""
-        is CommonCardData.AboutUsCard -> Uri.parse("android.resource://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.about_us_photo);
+        is CommonCardData.AboutUsCard -> data.aboutUsData?.titleImage ?: ""
     }
 }
 
@@ -70,22 +68,22 @@ fun distance(data: CommonCardData): String {
         is CommonCardData.BeachCard -> distanceBetweenPoints(
             data.mineLat,
             data.mineLng,
-            data.beachData?.lat,
-            data.beachData?.lng
+            data.beachData?.location?.coordinates?.get(1),
+            data.beachData?.location?.coordinates?.get(0),
         )
 
         is CommonCardData.RestaurantCard -> distanceBetweenPoints(
             data.mineLat,
             data.mineLng,
-            data.restaurantData?.lat,
-            data.restaurantData?.lng
+            data.restaurantData?.location?.coordinates?.get(1),
+            data.restaurantData?.location?.coordinates?.get(0)
         )
 
         is CommonCardData.ShopCard -> distanceBetweenPoints(
             data.mineLat,
             data.mineLng,
-            data.shopData?.lat,
-            data.shopData?.lng
+            data.shopData?.location?.coordinates?.get(1),
+            data.shopData?.location?.coordinates?.get(0)
         )
 
         else -> {

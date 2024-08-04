@@ -99,19 +99,19 @@ class AttractionActivity : ComponentActivity() {
                 }
                 val lat = when (commonCardData) {
                     is CommonCardData.RestaurantCard -> {
-                        commonCardData.restaurantData?.lat ?: 0.0
+                        commonCardData.restaurantData?.location?.coordinates?.get(1) ?: 0.0
                     }
 
                     is CommonCardData.BeachCard -> {
-                        commonCardData.beachData?.lat ?: 0.0
+                        commonCardData.beachData?.location?.coordinates?.get(1) ?: 0.0
                     }
 
                     is CommonCardData.SightCard -> {
-                        commonCardData.sightsData?.lat ?: 0.0
+                        commonCardData.sightsData?.location?.coordinates?.get(1) ?: 0.0
                     }
 
                     is CommonCardData.ShopCard -> {
-                        commonCardData.shopData?.lat ?: 0.0
+                        commonCardData.shopData?.location?.coordinates?.get(1) ?: 0.0
                     }
 
                     else -> {
@@ -120,19 +120,19 @@ class AttractionActivity : ComponentActivity() {
                 }
                 val lng = when (commonCardData) {
                     is CommonCardData.RestaurantCard -> {
-                        commonCardData.restaurantData?.lng ?: 0.0
+                        commonCardData.restaurantData?.location?.coordinates?.get(0) ?: 0.0
                     }
 
                     is CommonCardData.BeachCard -> {
-                        commonCardData.beachData?.lng ?: 0.0
+                        commonCardData.beachData?.location?.coordinates?.get(0) ?: 0.0
                     }
 
                     is CommonCardData.SightCard -> {
-                        commonCardData.sightsData?.lng ?: 0.0
+                        commonCardData.sightsData?.location?.coordinates?.get(0) ?: 0.0
                     }
 
                     is CommonCardData.ShopCard -> {
-                        commonCardData.shopData?.lng ?: 0.0
+                        commonCardData.shopData?.location?.coordinates?.get(0) ?: 0.0
                     }
 
                     else -> {
@@ -294,7 +294,7 @@ class AttractionActivity : ComponentActivity() {
                                         )
                                         Spacer(modifier = Modifier.width(15.dp))
                                         Text(
-                                            text = commonCardData.restaurantData?.contacts?.number
+                                            text = commonCardData.restaurantData?.phoneContact
                                                 ?: "",
                                             color = colorResource(id = R.color.space_cadet),
                                         )
@@ -318,7 +318,7 @@ class AttractionActivity : ComponentActivity() {
                                         )
                                         Spacer(modifier = Modifier.width(15.dp))
                                         Text(
-                                            text = commonCardData.restaurantData?.contacts?.email
+                                            text = commonCardData.restaurantData?.emailContact
                                                 ?: "",
                                             color = colorResource(id = R.color.space_cadet),
                                         )
@@ -510,8 +510,8 @@ fun RenderSubHeader(commonCardData: CommonCardData) {
                         distanceBetweenPoints(
                             commonCardData.mineLat,
                             commonCardData.mineLng,
-                            commonCardData.sightsData?.lat,
-                            commonCardData.sightsData?.lng
+                            commonCardData.sightsData?.location?.coordinates?.get(1),
+                            commonCardData.sightsData?.location?.coordinates?.get(0)
                         ),
                         style = Typography.bodyMedium,
                         color = colorResource(id = R.color.light_gray),
@@ -533,8 +533,8 @@ fun RenderSubHeader(commonCardData: CommonCardData) {
                         distanceBetweenPoints(
                             commonCardData.mineLat,
                             commonCardData.mineLng,
-                            commonCardData.shopData?.lat,
-                            commonCardData.shopData?.lng
+                            commonCardData.shopData?.location?.coordinates?.get(1),
+                            commonCardData.shopData?.location?.coordinates?.get(0)
                         ), style = Typography.bodyMedium,
                         color = colorResource(id = R.color.light_gray),
                         fontWeight = FontWeight(500)

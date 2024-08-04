@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,19 +38,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.apartmentinfoapp.R
-import com.example.apartmentinfoapp.domain.messages.MessageData
+import com.example.apartmentinfoapp.domain.messages.Message
 import com.example.apartmentinfoapp.presentation.composables.MessagesList
+import com.example.apartmentinfoapp.presentation.states.MessagesState
 import com.example.apartmentinfoapp.presentation.viewmodels.MessagesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
-import java.time.Instant
+import java.time.LocalDateTime
+
 
 @AndroidEntryPoint
 class MessageActivity : ComponentActivity() {
@@ -58,18 +65,16 @@ class MessageActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModelMessages.loadMessages()
-
         setContent {
             com.example.apartmentinfoapp.presentation.ui.theme.ApartmentInfoAppTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color(0xFFF2F4F5)
                 ) {
                     MessageScreen(
                         viewModelMessages = viewModelMessages,
-                        onFinishActivity = { finish() })
+                        onFinishActivity = { finish() }
+                    )
                 }
             }
         }
@@ -77,13 +82,10 @@ class MessageActivity : ComponentActivity() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun getLastMessageActivity(messages: List<MessageData>): String {
-    val lastMessageTimestamp = messages.last().timestamp
-
-    val givenInstant = lastMessageTimestamp?.toInstant()
-    val currentInstant = Instant.now()
-
-    val duration = Duration.between(givenInstant, currentInstant)
+fun getLastMessageActivity(messages: List<Message>): String {
+    val lastMessageTimestamp = messages.lastOrNull()?.timestamp ?: return "No messages yet"
+    val currentDateTime = LocalDateTime.now()
+    val duration = Duration.between(lastMessageTimestamp, currentDateTime)
 
     val days = duration.toDays()
     val hours = duration.toHours() % 24
@@ -110,15 +112,38 @@ fun getLastMessageActivity(messages: List<MessageData>): String {
 }
 
 fun sendMessage(viewModelMessages: MessagesViewModel, messageState: String) {
-    if (messageState.isEmpty()) return
-    viewModelMessages.sendMessage(messageState)
+    if (messageState.isNotEmpty()) {
+        viewModelMessages.sendMessage(messageState)
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> Unit) {
-    val messagesState by viewModelMessages.getState.collectAsState()
+fun MessageScreen(
+    viewModelMessages: MessagesViewModel = hiltViewModel(),
+    onFinishActivity: () -> Unit
+) {
     var textFiledState by remember { mutableStateOf("") }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(key1 = lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                viewModelMessages.startChatSession()
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                viewModelMessages.disconnect()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val state by viewModelMessages.state.collectAsState(MessagesState())
+
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,7 +153,6 @@ fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> 
                 top = 15.dp,
                 end = 40.dp
             )
-
     ) {
         Row(
             modifier = Modifier
@@ -139,8 +163,7 @@ fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> 
             Button(
                 onClick = onFinishActivity,
                 colors = ButtonDefaults.buttonColors(Color.Transparent),
-                modifier = Modifier
-                    .width(80.dp)
+                modifier = Modifier.width(80.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_arrow_left),
@@ -154,7 +177,7 @@ fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> 
                 painter = painterResource(id = R.drawable.landlord_image),
                 contentDescription = "Landlord avatar",
                 modifier = Modifier
-                    .size(100.dp) // Adjust the size as needed
+                    .size(100.dp)
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -166,11 +189,10 @@ fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> 
                     color = colorResource(id = R.color.space_cadet)
                 )
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(text = viewModelMessages.getState.value.messages?.let {
-                    getLastMessageActivity(
-                        it
-                    )
-                } ?: "", fontSize = 12.sp)
+                Text(
+                    text = state.messages?.let { getLastMessageActivity(it) } ?: "",
+                    fontSize = 12.sp
+                )
             }
         }
         Column(
@@ -179,7 +201,7 @@ fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> 
                 .height(570.dp)
         ) {
             MessagesList(
-                messagesState = messagesState,
+                messagesState = state,
                 modifier = Modifier.height(580.dp)
             )
         }
@@ -207,9 +229,7 @@ fun MessageScreen(viewModelMessages: MessagesViewModel, onFinishActivity: () -> 
                     textFiledState = ""
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(
-                        id = R.color.tufts_blue
-                    )
+                    containerColor = colorResource(id = R.color.tufts_blue)
                 ),
                 shape = RoundedCornerShape(5.dp),
                 modifier = Modifier

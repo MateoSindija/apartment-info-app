@@ -2,6 +2,7 @@ package com.example.apartmentinfoapp.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apartmentinfoapp.data.interceptor.AccessTokenProvider
 import com.example.apartmentinfoapp.domain.repository.DevicesRepository
 import com.example.apartmentinfoapp.domain.util.Resource
 import com.example.apartmentinfoapp.presentation.states.DevicesListState
@@ -13,7 +14,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DevicesViewModel @Inject constructor(private val repository: DevicesRepository) :
+class DevicesViewModel @Inject constructor(
+    private val repository: DevicesRepository,
+    private val accessTokenProvider: AccessTokenProvider
+) :
     ViewModel() {
     private val _state = MutableStateFlow(DevicesListState())
     val state: StateFlow<DevicesListState> get() = _state.asStateFlow()
@@ -25,8 +29,9 @@ class DevicesViewModel @Inject constructor(private val repository: DevicesReposi
                 isLoading = true,
                 error = null
             )
+            val apartmentId = accessTokenProvider.getApartmentId()
             when (val result =
-                repository.getDevicesList()) {
+                repository.getDevicesList(apartmentId)) {
                 is Resource.Success -> {
                     _state.value = _state.value.copy(
                         devicesInfoList = result.data,

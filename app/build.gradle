@@ -28,7 +28,8 @@ android {
         Properties properties = new Properties()
         properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
-        buildConfigField "String", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}"
+        buildConfigField "String", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}\""
+        buildConfigField "String", "SERVER_LOCATION", "\"${properties.getProperty('SERVER_LOCATION')}\""
     }
 
     buildTypes {
@@ -73,6 +74,7 @@ dependencies {
     implementation platform('androidx.compose:compose-bom:2024.05.00')
     implementation platform('androidx.compose:compose-bom:2024.05.00')
     implementation platform('androidx.compose:compose-bom:2024.05.00')
+    implementation 'androidx.compose.runtime:runtime-livedata:1.6.8'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -96,6 +98,11 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3"
 
     implementation 'com.google.android.gms:play-services-location:21.1.0'
+
+    implementation('io.socket:socket.io-client:2.0.0') {
+        exclude group: 'org.json', module: 'json'
+    }
+
 
     implementation "io.coil-kt:coil-compose:2.6.0"
 }

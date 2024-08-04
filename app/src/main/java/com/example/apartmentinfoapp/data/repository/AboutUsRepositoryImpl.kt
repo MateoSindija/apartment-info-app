@@ -1,31 +1,16 @@
 package com.example.apartmentinfoapp.data.repository
 
-import com.example.apartmentinfoapp.domain.aboutUs.AboutUsData
+import com.example.apartmentinfoapp.data.mappers.formatAboutUsImages
+import com.example.apartmentinfoapp.data.remote.ApartmentApi
+import com.example.apartmentinfoapp.domain.aboutUs.AboutUsDataDto
 import com.example.apartmentinfoapp.domain.repository.AboutUsRepository
 import com.example.apartmentinfoapp.domain.util.Resource
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AboutUsRepositoryImpl @Inject constructor() : AboutUsRepository {
-    override suspend fun getAboutUs(): Resource<AboutUsData> {
-        val fireStoreDatabase = FirebaseFirestore.getInstance()
-
+class AboutUsRepositoryImpl @Inject constructor(private val api: ApartmentApi) : AboutUsRepository {
+    override suspend fun getAboutUs(apartmentId: String): Resource<AboutUsDataDto> {
         return try {
-            val docSnapshot =
-                fireStoreDatabase.collection("AboutUs").document("aboutUs").get().await()
-
-            if (!docSnapshot.exists()) {
-                Resource.Success(data = null)
-            } else {
-
-                var aboutUsData = docSnapshot.toObject(AboutUsData::class.java) ?: throw Exception(
-                    "Error converting document to AboutUsData"
-                )
-                aboutUsData = aboutUsData.copy(id = docSnapshot.id)
-
-                Resource.Success(data = aboutUsData)
-            }
+            Resource.Success(data = api.getAboutUs(apartmentId).formatAboutUsImages())
 
         } catch (e: Exception) {
             e.printStackTrace()
