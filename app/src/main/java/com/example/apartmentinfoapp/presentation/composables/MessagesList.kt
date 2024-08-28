@@ -1,6 +1,5 @@
 package com.example.apartmentinfoapp.presentation.composables
 
-import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +13,6 @@ import com.example.apartmentinfoapp.presentation.states.MessagesState
 fun MessagesList(messagesState: MessagesState, modifier: Modifier) {
     val listOfMessagesData = messagesState.messages.orEmpty()
 
-    Log.d("tu smo list", listOfMessagesData.toString())
 
     if (listOfMessagesData.isNotEmpty()) {
         LazyColumn(modifier = modifier) {

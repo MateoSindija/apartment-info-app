@@ -25,6 +25,7 @@ class ReservationViewModel @Inject constructor(
     val state: StateFlow<ReservationState> get() = _state.asStateFlow()
 
     fun loadReservationInfo(activity: Activity) {
+        val sharedPref = activity.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         viewModelScope.launch {
             _state.value = _state.value.copy(
                 isLoading = true,
@@ -42,16 +43,23 @@ class ReservationViewModel @Inject constructor(
                         error = null
                     )
 
-                    if (result.data != null) {
-                        val sharedPref =
-                            activity.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-                        with(sharedPref.edit()) {
-                            putString("reservationId", result.data.reservationId).apply()
-                        }
+
+                    with(sharedPref.edit()) {
+                        putString(
+                            "reservationId",
+                            if (result.data != null) result.data.reservationId else ""
+                        ).apply()
                     }
                 }
 
                 is Resource.Error -> {
+
+                    with(sharedPref.edit()) {
+                        putString(
+                            "reservationId",
+                            if (result.data != null) result.data.reservationId else ""
+                        ).apply()
+                    }
                     _state.value = _state.value.copy(
                         reservationInfo = null,
                         isLoading = false,

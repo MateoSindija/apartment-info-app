@@ -1,5 +1,6 @@
 package com.example.apartmentinfoapp.presentation.activities
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -49,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.apartmentinfoapp.R
+import com.example.apartmentinfoapp.data.interceptor.AccessTokenProvider
 import com.example.apartmentinfoapp.domain.messages.Message
 import com.example.apartmentinfoapp.presentation.composables.MessagesList
 import com.example.apartmentinfoapp.presentation.states.MessagesState
@@ -73,7 +77,8 @@ class MessageActivity : ComponentActivity() {
                 ) {
                     MessageScreen(
                         viewModelMessages = viewModelMessages,
-                        onFinishActivity = { finish() }
+                        onFinishActivity = { finish() },
+                        context = this
                     )
                 }
             }
@@ -121,14 +126,18 @@ fun sendMessage(viewModelMessages: MessagesViewModel, messageState: String) {
 @Composable
 fun MessageScreen(
     viewModelMessages: MessagesViewModel = hiltViewModel(),
-    onFinishActivity: () -> Unit
+    onFinishActivity: () -> Unit,
+    context: Context
 ) {
+
     var textFiledState by remember { mutableStateOf("") }
     val lifecycleOwner = LocalLifecycleOwner.current
+    val reservationId = AccessTokenProvider(context).getReservationId()
+
 
     DisposableEffect(key1 = lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
+            if (event == Lifecycle.Event.ON_START && reservationId.isNotEmpty()) {
                 viewModelMessages.startChatSession()
             } else if (event == Lifecycle.Event.ON_STOP) {
                 viewModelMessages.disconnect()
@@ -195,58 +204,70 @@ fun MessageScreen(
                 )
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(570.dp)
-        ) {
-            MessagesList(
-                messagesState = state,
-                modifier = Modifier.height(580.dp)
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-                .padding(top = 5.dp)
-        ) {
-            MessageTextField(
-                Modifier
-                    .weight(0.7f)
-                    .fillMaxHeight()
-                    .background(color = Color.White),
-                textState = textFiledState,
-                onTextChanged = { textFiledState = it },
-            )
-            Spacer(modifier = Modifier.width(30.dp))
-            Button(
-                onClick = {
-                    sendMessage(
-                        viewModelMessages = viewModelMessages,
-                        messageState = textFiledState
-                    )
-                    textFiledState = ""
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.tufts_blue)
-                ),
-                shape = RoundedCornerShape(5.dp),
+        if (reservationId.isNotEmpty()) {
+            Column(
                 modifier = Modifier
-                    .weight(0.1f)
-                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .height(570.dp)
             ) {
-                Text(
-                    text = "Send",
-                    fontSize = 18.sp,
-                    color = colorResource(id = R.color.white)
+                MessagesList(
+                    messagesState = state,
+                    modifier = Modifier.height(580.dp)
                 )
-                Spacer(modifier = Modifier.width(10.dp))
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_send),
-                    contentDescription = "Send message",
-                    tint = colorResource(id = R.color.white)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .padding(top = 5.dp)
+            ) {
+                MessageTextField(
+                    Modifier
+                        .weight(0.7f)
+                        .fillMaxHeight()
+                        .background(color = Color.White),
+                    textState = textFiledState,
+                    onTextChanged = { textFiledState = it },
                 )
+                Spacer(modifier = Modifier.width(30.dp))
+                Button(
+                    onClick = {
+                        sendMessage(
+                            viewModelMessages = viewModelMessages,
+                            messageState = textFiledState
+                        )
+                        textFiledState = ""
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.tufts_blue)
+                    ),
+                    shape = RoundedCornerShape(5.dp),
+                    modifier = Modifier
+                        .weight(0.1f)
+                        .fillMaxHeight()
+                ) {
+                    Text(
+                        text = "Send",
+                        fontSize = 18.sp,
+                        color = colorResource(id = R.color.white)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_send),
+                        contentDescription = "Send message",
+                        tint = colorResource(id = R.color.white)
+                    )
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "There are no current reservation active")
             }
         }
     }
