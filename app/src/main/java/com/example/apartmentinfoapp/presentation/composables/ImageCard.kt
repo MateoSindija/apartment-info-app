@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.apartmentinfoapp.R
-import com.example.apartmentinfoapp.domain.sights.SightsData
+import com.example.apartmentinfoapp.domain.sights.SightDataDto
 import com.example.apartmentinfoapp.presentation.activities.distanceBetweenPoints
 import com.example.apartmentinfoapp.presentation.models.CommonCardData
 
@@ -49,7 +49,7 @@ import com.example.apartmentinfoapp.presentation.models.CommonCardData
 @Composable
 fun ImageCard(
     modifier: Modifier,
-    data: SightsData?,
+    data: SightDataDto?,
     mineLat: Double?,
     mineLng: Double?,
     textSizeTitle: TextUnit = 16.sp,
@@ -119,8 +119,8 @@ fun ImageCard(
                         Spacer(Modifier.width(5.dp))
                         Text(
                             text = distanceBetweenPoints(
-                                data?.lat,
-                                data?.lng,
+                                data?.location?.coordinates?.get(1),
+                                data?.location?.coordinates?.get(0),
                                 mineLat,
                                 mineLng
                             ),

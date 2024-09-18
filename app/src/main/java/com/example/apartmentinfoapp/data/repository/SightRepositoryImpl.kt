@@ -1,30 +1,17 @@
 package com.example.apartmentinfoapp.data.repository
 
+import com.example.apartmentinfoapp.data.mappers.formatImages
+import com.example.apartmentinfoapp.data.remote.ApartmentApi
 import com.example.apartmentinfoapp.domain.repository.SightRepository
-import com.example.apartmentinfoapp.domain.sights.SightsData
+import com.example.apartmentinfoapp.domain.sights.SightDataDto
 import com.example.apartmentinfoapp.domain.util.Resource
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class SightRepositoryImpl @Inject constructor() : SightRepository {
-    private val fireStoreDatabase = FirebaseFirestore.getInstance()
+class SightRepositoryImpl @Inject constructor(private val api: ApartmentApi) : SightRepository {
 
-    override suspend fun getSights(lat: Double, lng: Double): Resource<List<SightsData>> {
+    override suspend fun getSights(apartmentId: String): Resource<List<SightDataDto>> {
         return try {
-            val snapshot = fireStoreDatabase.collection("Attractions").get().await()
-
-            if (snapshot.isEmpty) {
-                Resource.Success(data = emptyList())
-            } else {
-
-                val listOfSights = snapshot.documents.map { document ->
-                    val sightsData = document.toObject(SightsData::class.java)
-                        ?: throw Exception("Error converting document to SightsData")
-                    sightsData.copy(id = document.id)
-                }
-                Resource.Success(data = listOfSights)
-            }
+            Resource.Success(data = api.getSights(apartmentId).formatImages())
 
         } catch (e: Exception) {
             e.printStackTrace()

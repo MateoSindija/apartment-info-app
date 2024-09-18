@@ -19,7 +19,7 @@ fun CardsList(state: CommonDataState) {
                 if (data.beachState?.beachInfo?.isNotEmpty() == true) {
                     LazyRow(content = {
                         items(count = data.beachState.beachInfo.size, key = {
-                            data.beachState.beachInfo[it]?.id
+                            data.beachState.beachInfo[it]?.beachId
                                 ?: ""
                         }, itemContent = { index ->
                             AttractionCard(
@@ -42,7 +42,7 @@ fun CardsList(state: CommonDataState) {
                 if (data.restaurantState?.restaurantsInfoList?.isNotEmpty() == true) {
                     LazyRow(content = {
                         items(count = data.restaurantState.restaurantsInfoList.size, key = {
-                            data.restaurantState.restaurantsInfoList[it]?.id
+                            data.restaurantState.restaurantsInfoList[it]?.restaurantId
                                 ?: ""
                         }, itemContent = { index ->
                             AttractionCard(
@@ -65,7 +65,7 @@ fun CardsList(state: CommonDataState) {
                 if (data.shopState?.shopsInfoList?.isNotEmpty() == true) {
                     LazyRow(content = {
                         items(count = data.shopState.shopsInfoList.size, key = {
-                            data.shopState.shopsInfoList[it]?.id
+                            data.shopState.shopsInfoList[it]?.shopId
                                 ?: ""
                         }, itemContent = { index ->
                             AttractionCard(

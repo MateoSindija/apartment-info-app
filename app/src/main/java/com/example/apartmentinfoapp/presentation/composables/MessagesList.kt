@@ -11,15 +11,15 @@ import com.example.apartmentinfoapp.presentation.states.MessagesState
 
 @Composable
 fun MessagesList(messagesState: MessagesState, modifier: Modifier) {
-    messagesState.messages.let { listOfMessagesData ->
-        if (listOfMessagesData != null) {
-            if (listOfMessagesData.isNotEmpty()) {
-                LazyColumn(modifier = modifier, content = {
-                    items(listOfMessagesData) { messageData ->
-                        MessageRow(messageData)
-                        Spacer(modifier = Modifier.height(2.dp))
-                    }
-                })
+    val listOfMessagesData = messagesState.messages.orEmpty()
+
+
+    if (listOfMessagesData.isNotEmpty()) {
+        LazyColumn(modifier = modifier) {
+            items(listOfMessagesData, key = { message -> message.messageId }) { messageData ->
+                // Display each message with a MessageRow
+                MessageRow(messageData)
+                Spacer(modifier = Modifier.height(2.dp))
             }
         }
     }

@@ -24,15 +24,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.apartmentinfoapp.R
-import com.example.apartmentinfoapp.domain.devices.DeviceData
+import com.example.apartmentinfoapp.domain.devices.DeviceDataDto
 import com.example.apartmentinfoapp.presentation.models.CommonCardData
 
-fun handleClick(deviceData: DeviceData, context: Context) {
+fun handleClick(deviceData: DeviceDataDto, context: Context) {
     launchNextActivity(CommonCardData.DeviceCard(deviceData), context)
 }
 
 @Composable
-fun DeviceButton(deviceData: DeviceData) {
+fun DeviceButton(deviceData: DeviceDataDto) {
     val context = LocalContext.current
     OutlinedButton(
         onClick = { handleClick(deviceData, context) }, shape = RoundedCornerShape(50),

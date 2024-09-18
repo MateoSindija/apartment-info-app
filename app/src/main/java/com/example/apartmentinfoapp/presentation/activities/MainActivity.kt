@@ -1,5 +1,6 @@
 package com.example.apartmentinfoapp.presentation.activities
 
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
@@ -10,6 +11,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,24 +24,33 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.example.apartmentinfoapp.BuildConfig
 import com.example.apartmentinfoapp.R
 import com.example.apartmentinfoapp.presentation.composables.ActionCard
 import com.example.apartmentinfoapp.presentation.composables.ActivityLayout
@@ -56,6 +68,7 @@ import com.example.apartmentinfoapp.presentation.ui.theme.Typography
 import com.example.apartmentinfoapp.presentation.viewmodels.AboutUsViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.BeachViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.DevicesViewModel
+import com.example.apartmentinfoapp.presentation.viewmodels.ReservationViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.RestaurantViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.ShopViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.SightViewModel
@@ -97,6 +110,16 @@ fun distanceBetweenPointsInKm(
     return (locationDistanceResult[0] / 1000).toInt()
 }
 
+public fun formatImageUrl(imgUrl: String): String {
+    val serverLocation = BuildConfig.SERVER_LOCATION
+    return "$serverLocation/${imgUrl.replace("public/", "")}"
+}
+
+public fun formatImageUrls(imgUrls: List<String>): List<String> {
+    val serverLocation = BuildConfig.SERVER_LOCATION
+    return imgUrls.map { "$serverLocation/${it.replace("public/", "")}" }
+}
+
 fun distanceBetweenPointsInM(
     startLat: Double?,
     startLng: Double?,
@@ -125,6 +148,7 @@ class MainActivity : ComponentActivity() {
     private val viewModelSights: SightViewModel by viewModels()
     private val viewModelShops: ShopViewModel by viewModels()
     private val viewModelAboutUs: AboutUsViewModel by viewModels()
+    private val viewModelReservation: ReservationViewModel by viewModels()
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -135,37 +159,26 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestMultiplePermissions()
         ) {
             loadData()
-
         }
         permissionLauncher.launch(
             arrayOf(
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.INTERNET
+                android.Manifest.permission.INTERNET,
+                android.Manifest.permission.ACCESS_NETWORK_STATE
             )
         )
 
 
-        fun getDayGreeting(): String {
+        fun getDayGreeting(clientName: String): String {
 
             return when (LocalTime.now().hour) {
-                in 0..5 -> "Good night"
-                in 6..11 -> "Good morning"
-                in 12..17 -> "Good afternoon"
-                in 18..21 -> "Good evening"
-                else -> "Good night"
+                in 0..5 -> "Good night ${clientName}"
+                in 6..11 -> "Good morning ${clientName}"
+                in 12..17 -> "Good afternoon ${clientName}"
+                in 18..21 -> "Good evening ${clientName}"
+                else -> "Good night ${clientName}"
             }
-        }
-
-        fun isContentLoading(
-            beachesLoading: Boolean,
-            devicesLoading: Boolean,
-            restaurantsLoading: Boolean,
-            sightsLoading: Boolean,
-            weatherLoading: Boolean,
-            shopsLoading: Boolean
-        ): Boolean {
-            return beachesLoading || devicesLoading || restaurantsLoading || sightsLoading || weatherLoading || shopsLoading
         }
 
 
@@ -177,6 +190,8 @@ class MainActivity : ComponentActivity() {
             val sightsState by viewModelSights.state.collectAsState()
             val weatherState by viewModelWeather.state.collectAsState()
             val shopsState by viewModelShops.state.collectAsState()
+            val reservationState by viewModelReservation.state.collectAsState()
+            var isSignOutDialogOpen by remember { mutableStateOf<Boolean>(false) }
 
 
             ActivityLayout(modifier = Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
@@ -207,7 +222,9 @@ class MainActivity : ComponentActivity() {
                                     .width(700.dp)
                             ) {
                                 Text(
-                                    text = getDayGreeting(),
+                                    text = getDayGreeting(
+                                        reservationState.reservationInfo?.clientName ?: ""
+                                    ),
                                     style = Typography.displayMedium.copy(
                                         fontSize = 34.sp,
                                         fontWeight = FontWeight(600)
@@ -369,6 +386,34 @@ class MainActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.height(15.dp))
                     CardsList(state = CommonDataState.ShopCardList(shopsState))
+
+                    Spacer(modifier = Modifier.height(25.dp))
+                    if (isSignOutDialogOpen) {
+                        FullScreenSignOutDialog(
+                            onClose = { isSignOutDialogOpen = false },
+                            context = this@MainActivity
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = { isSignOutDialogOpen = true },
+                        modifier = Modifier
+                            .height(50.dp)
+                            .width(150.dp)
+                            .background(Color.Transparent)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Sign out", color = Color.Black)
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_log_out),
+                                contentDescription = "logout",
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(20.dp)
+                            )
+                        }
+
+                    }
                 }
 
             }
@@ -384,6 +429,44 @@ class MainActivity : ComponentActivity() {
         viewModelBeaches.loadBeachesInfo()
         viewModelShops.loadShopsInfo()
         viewModelAboutUs.loadAboutUsInfo()
+        viewModelReservation.loadReservationInfo(this)
+    }
+
+}
+
+private fun signOut(context: Context) {
+    val sharedPref = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+    with(sharedPref.edit()) {
+        putString("x-access-token", "").apply()
+        putString("apartmentId", "").apply()
+        putString("ownerId", "").apply()
+    }
+    val attractionIntent = Intent(context, LoginActivity::class.java)
+    context.startActivity(attractionIntent)
+}
+
+@Composable
+fun FullScreenSignOutDialog(onClose: () -> Unit, context: Context) {
+
+    Dialog(onClose) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(20.dp)
+                .background(Color.White)
+        ) {
+            Text(text = "Are you sure you want to log out?")
+            Spacer(modifier = Modifier.height(25.dp))
+            Row {
+                OutlinedButton(onClick = { signOut(context) }) {
+                    Text(text = "Sign out")
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                OutlinedButton(onClick = onClose) {
+                    Text(text = "Cancel")
+                }
+            }
+        }
     }
 }
 

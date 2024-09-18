@@ -1,6 +1,5 @@
 package com.example.apartmentinfoapp.presentation.composables
 
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
@@ -17,7 +16,6 @@ fun PullToRefreshComponent(
     refreshData: () -> Unit,
 ) {
 
-    Log.d("tu smo", pullToRefreshState.isRefreshing.toString())
     fun isContentLoading(): Boolean {
         return isLoadingStates.any { it }
     }
