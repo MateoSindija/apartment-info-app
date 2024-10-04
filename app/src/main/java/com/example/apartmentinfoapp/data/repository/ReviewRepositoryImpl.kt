@@ -38,10 +38,11 @@ class ReviewRepositoryImpl @Inject constructor(private val api: ApartmentApi) : 
     ): Resource<Boolean> {
         return try {
 
-            val reviewRequestBody = review?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val reviewRequestBody =
+                review.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val comfortRatingRequestBody =
                 comfortRating.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val expRatingRequestBody =
+            val experienceRatingRequestBody =
                 expRating.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val valueRatingRequestBody =
                 valueRating.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -52,7 +53,7 @@ class ReviewRepositoryImpl @Inject constructor(private val api: ApartmentApi) : 
             api.postReview(
                 review = reviewRequestBody,
                 comfortRating = comfortRatingRequestBody,
-                expRating = expRatingRequestBody,
+                expRating = experienceRatingRequestBody,
                 valueRating = valueRatingRequestBody,
                 apartmentId = apartmentIdRequestBody,
                 images = imageParts

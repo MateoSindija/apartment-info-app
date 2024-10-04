@@ -40,7 +40,7 @@ interface ApartmentApi {
     suspend fun postReview(
         @Part("review") review: RequestBody?,
         @Part("comfortRating") comfortRating: RequestBody,
-        @Part("expRating") expRating: RequestBody,
+        @Part("experienceRating") expRating: RequestBody,
         @Part("valueRating") valueRating: RequestBody,
         @Part("apartmentId") apartmentId: RequestBody,
         @Part images: List<MultipartBody.Part>
