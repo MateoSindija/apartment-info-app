@@ -1,10 +1,12 @@
 package com.example.apartmentinfoapp.presentation.activities
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,11 +22,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -35,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -49,12 +57,14 @@ import com.example.apartmentinfoapp.presentation.composables.ActivityLayout
 import com.example.apartmentinfoapp.presentation.composables.RatingCard
 import com.example.apartmentinfoapp.presentation.states.ReviewExistanceState
 import com.example.apartmentinfoapp.presentation.ui.theme.Typography
+import com.example.apartmentinfoapp.presentation.viewmodels.CameraViewModel
 import com.example.apartmentinfoapp.presentation.viewmodels.ReviewViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ReviewActivity : ComponentActivity() {
     private val viewModelReviews: ReviewViewModel by viewModels()
+    private val viewModelCamera: CameraViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -67,171 +77,217 @@ class ReviewActivity : ComponentActivity() {
             var comfortRating by remember { mutableStateOf(0) }
             var valueRating by remember { mutableStateOf(0) }
             val reviewState by viewModelReviews.state.collectAsState()
+            val photosState by viewModelCamera.bitmaps.collectAsState()
+            var isCameraActive by remember { mutableStateOf(false) }
 
-            ActivityLayout {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = 30.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(230.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.review_background),
-                            contentDescription = "Review background",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .innerShadow(
-                                    shape = RectangleShape,
-                                    color = Color.Black.copy(0.5f),
-                                    offsetY = (-300).dp,
-                                    offsetX = (0).dp,
-                                    blur = 10.dp,
-                                    spread = 10.dp
-                                )
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Transparent)
-                                .padding(start = 85.dp, bottom = 30.dp),
-                            contentAlignment = Alignment.BottomStart
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Leave a review",
-                                    style = Typography.bodyLarge,
-                                    color = colorResource(id = R.color.white),
-                                    fontWeight = FontWeight.W500,
-                                    fontSize = 54.sp
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
-                        }
-                    }
+            if (isCameraActive) {
+                Camera(this, { isCameraActive = false })
+            } else {
+                ActivityLayout {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 85.dp, end = 85.dp, top = 29.dp, bottom = 10.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
+                            .verticalScroll(rememberScrollState())
+                            .padding(bottom = 30.dp)
                     ) {
-                        if (reviewState.isReviewAlreadySubmitted != true) {
-                            Row(
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(230.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.review_background),
+                                contentDescription = "Review background",
+                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(300.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                RatingCard(
-                                    header = "How was your overall experience?",
-                                    subHeader = "Rate your stay to help us improve your experience",
-                                    onRatingChange = { expRating = it },
-                                    rating = expRating,
-                                    imageResource = painterResource(
-                                        id = R.drawable.ic_smile
+                                    .fillMaxSize()
+                                    .innerShadow(
+                                        shape = RectangleShape,
+                                        color = Color.Black.copy(0.5f),
+                                        offsetY = (-300).dp,
+                                        offsetX = (0).dp,
+                                        blur = 10.dp,
+                                        spread = 10.dp
                                     )
-                                )
-                                RatingCard(
-                                    header = "How comfortable was your stay?",
-                                    subHeader = "Rate the comfort of your stay to help us ensure a restful experiences",
-                                    onRatingChange = { comfortRating = it },
-                                    rating = comfortRating,
-                                    imageResource = painterResource(
-                                        id = R.drawable.ic_desk_chair
-                                    )
-                                )
-                                RatingCard(
-                                    header = "How was the value for your money?",
-                                    subHeader = "Rate the value to help us provide better experiences",
-                                    onRatingChange = { valueRating = it },
-                                    rating = valueRating,
-                                    imageResource = painterResource(
-                                        id = R.drawable.ic_euro
-                                    )
-                                )
-                            }
-                            Row(
+                            )
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(130.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .fillMaxSize()
+                                    .background(Color.Transparent)
+                                    .padding(start = 85.dp, bottom = 30.dp),
+                                contentAlignment = Alignment.BottomStart
                             ) {
-
-                                TextField(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.7f)
-                                        .fillMaxHeight()
-                                        .padding(10.dp)
-                                        .border(
-                                            width = 1.dp,
-                                            color = Color.Black,
-                                            shape = RoundedCornerShape(8.dp)
-                                        ),
-                                    placeholder = { Text(text = "Write your review here (optional)") },
-                                    value = reviewField,
-                                    shape = RoundedCornerShape(5.dp),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedIndicatorColor = Color.Transparent, // Hide the underline indicator
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        focusedContainerColor = Color.White,
-                                        unfocusedContainerColor = colorResource(id = R.color.gains_boro)
-                                    ),
-                                    keyboardOptions = KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Done
-                                    ),
-                                    onValueChange = { reviewField = it },
-                                    maxLines = 10,
-                                )
-                                Spacer(modifier = Modifier.width(30.dp))
-                                Button(
-                                    onClick = {
-                                        submitReview(
-                                            reviewField = reviewField,
-                                            expRating = expRating,
-                                            comfortRating = comfortRating,
-                                            valueRating = valueRating,
-                                            reviewState = reviewState
-                                        )
-                                        reviewField = ""
-                                        expRating = 0
-                                        comfortRating = 0
-                                        valueRating = 0
-
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = colorResource(
-                                            id = R.color.tufts_blue
-                                        )
-                                    ),
-                                    shape = RoundedCornerShape(5.dp),
-                                    modifier = Modifier
-                                        .width(120.dp)
-                                        .height(50.dp)
-                                ) {
+                                Column {
                                     Text(
-                                        text = "Submit",
-                                        fontSize = 18.sp,
-                                        color = colorResource(id = R.color.white)
+                                        text = "Leave a review",
+                                        style = Typography.bodyLarge,
+                                        color = colorResource(id = R.color.white),
+                                        fontWeight = FontWeight.W500,
+                                        fontSize = 54.sp
                                     )
+                                    Spacer(modifier = Modifier.height(10.dp))
                                 }
                             }
-                        } else {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Text(
-                                    text = "Thank you for your review",
-                                    fontSize = 20.sp,
-                                    style = Typography.bodyLarge,
-                                    color = colorResource(id = R.color.black),
-                                    fontWeight = FontWeight.W500,
-                                )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(start = 85.dp, end = 85.dp, top = 29.dp, bottom = 10.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            if (reviewState.isReviewAlreadySubmitted != true) {
+                                Column {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(300.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        RatingCard(
+                                            header = "How was your overall experience?",
+                                            subHeader = "Rate your stay to help us improve your experience",
+                                            onRatingChange = { expRating = it },
+                                            rating = expRating,
+                                            imageResource = painterResource(
+                                                id = R.drawable.ic_smile
+                                            )
+                                        )
+                                        RatingCard(
+                                            header = "How comfortable was your stay?",
+                                            subHeader = "Rate the comfort of your stay to help us ensure a restful experiences",
+                                            onRatingChange = { comfortRating = it },
+                                            rating = comfortRating,
+                                            imageResource = painterResource(
+                                                id = R.drawable.ic_desk_chair
+                                            )
+                                        )
+                                        RatingCard(
+                                            header = "How was the value for your money?",
+                                            subHeader = "Rate the value to help us provide better experiences",
+                                            onRatingChange = { valueRating = it },
+                                            rating = valueRating,
+                                            imageResource = painterResource(
+                                                id = R.drawable.ic_euro
+                                            )
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        OutlinedButton(
+                                            onClick = { isCameraActive = true },
+                                            shape = RoundedCornerShape(50),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                colorResource(id = R.color.tufts_blue)
+                                            ),
+                                            modifier = Modifier
+                                                .padding(horizontal = 5.dp)
+                                                .clip(CircleShape)
+                                                .background(colorResource(id = R.color.tufts_blue))
+
+
+                                        ) {
+                                            Text(
+                                                text = "Take photos",
+                                                color = Color.White,
+                                                fontWeight = FontWeight.W500
+                                            )
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Icon(
+                                                imageVector = Icons.Default.CameraAlt,
+                                                tint = Color.White,
+                                                contentDescription = "Camera"
+                                            )
+                                        }
+                                        if (photosState.isNotEmpty()) {
+                                            Spacer(modifier = Modifier.height(10.dp))
+                                            Text(text = "${photosState.size} photos taken")
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(130.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+
+                                        TextField(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.7f)
+                                                .fillMaxHeight()
+                                                .padding(10.dp)
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = Color.Black,
+                                                    shape = RoundedCornerShape(8.dp)
+                                                ),
+                                            placeholder = { Text(text = "Write your review here (optional)") },
+                                            value = reviewField,
+                                            shape = RoundedCornerShape(5.dp),
+                                            colors = TextFieldDefaults.colors(
+                                                focusedIndicatorColor = Color.Transparent, // Hide the underline indicator
+                                                unfocusedIndicatorColor = Color.Transparent,
+                                                focusedContainerColor = Color.White,
+                                                unfocusedContainerColor = colorResource(id = R.color.gains_boro)
+                                            ),
+                                            keyboardOptions = KeyboardOptions.Default.copy(
+                                                imeAction = ImeAction.Done
+                                            ),
+                                            onValueChange = { reviewField = it },
+                                            maxLines = 10,
+                                        )
+                                        Spacer(modifier = Modifier.width(30.dp))
+                                        Button(
+                                            onClick = {
+                                                submitReview(
+                                                    reviewField = reviewField,
+                                                    expRating = expRating,
+                                                    comfortRating = comfortRating,
+                                                    valueRating = valueRating,
+                                                    reviewState = reviewState,
+                                                    photosState = photosState
+                                                )
+                                                reviewField = ""
+                                                expRating = 0
+                                                comfortRating = 0
+                                                valueRating = 0
+
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = colorResource(
+                                                    id = R.color.tufts_blue
+                                                )
+                                            ),
+                                            shape = RoundedCornerShape(5.dp),
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(50.dp)
+                                        ) {
+                                            Text(
+                                                text = "Submit",
+                                                fontSize = 18.sp,
+                                                color = colorResource(id = R.color.white)
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        text = "Thank you for your review",
+                                        fontSize = 20.sp,
+                                        style = Typography.bodyLarge,
+                                        color = colorResource(id = R.color.black),
+                                        fontWeight = FontWeight.W500,
+                                    )
+                                }
                             }
                         }
                     }
@@ -240,15 +296,23 @@ class ReviewActivity : ComponentActivity() {
         }
     }
 
+
     private fun submitReview(
         reviewField: String,
         expRating: Int,
         comfortRating: Int,
         valueRating: Int,
         reviewState: ReviewExistanceState,
+        photosState: List<Bitmap>,
     ) {
         if (expRating == 0 || comfortRating == 0 || valueRating == 0) return
-        viewModelReviews.submitReview(reviewField, expRating, comfortRating, valueRating)
+        viewModelReviews.submitReview(
+            reviewField,
+            expRating,
+            comfortRating,
+            valueRating,
+            photosState
+        )
         reviewState.isReviewAlreadySubmitted = true
     }
 }

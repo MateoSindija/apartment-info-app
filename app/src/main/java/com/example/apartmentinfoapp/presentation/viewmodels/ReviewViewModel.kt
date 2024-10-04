@@ -1,5 +1,6 @@
 package com.example.apartmentinfoapp.presentation.viewmodels
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,7 +35,8 @@ class ReviewViewModel @Inject constructor(
         review: String,
         expRating: Int,
         comfortRating: Int,
-        valueRating: Int
+        valueRating: Int,
+        photosState: List<Bitmap>
     ) {
         viewModelScope.launch {
             val apartmentId = accessTokenProvider.getApartmentId()
@@ -45,7 +47,8 @@ class ReviewViewModel @Inject constructor(
                     expRating,
                     comfortRating,
                     valueRating,
-                    apartmentId
+                    apartmentId,
+                    photosState
                 )) {
                 is Resource.Success -> {
                     reviewSubmitState =

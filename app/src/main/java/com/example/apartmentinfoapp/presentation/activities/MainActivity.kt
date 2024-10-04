@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
@@ -41,8 +43,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -165,6 +169,7 @@ class MainActivity : ComponentActivity() {
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.INTERNET,
+                android.Manifest.permission.CAMERA,
                 android.Manifest.permission.ACCESS_NETWORK_STATE
             )
         )
@@ -451,19 +456,32 @@ fun FullScreenSignOutDialog(onClose: () -> Unit, context: Context) {
     Dialog(onClose) {
         Column(
             modifier = Modifier
-                .wrapContentSize()
-                .padding(20.dp)
                 .background(Color.White)
+                .padding(25.dp)
         ) {
-            Text(text = "Are you sure you want to log out?")
+            Text(text = "Are you sure you want to sign out?", color = Color.Black)
             Spacer(modifier = Modifier.height(25.dp))
             Row {
-                OutlinedButton(onClick = { signOut(context) }) {
-                    Text(text = "Sign out")
+                OutlinedButton(
+                    onClick = { signOut(context) },
+                    border = BorderStroke(1.dp, colorResource(id = R.color.tufts_blue)),
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .clip(CircleShape)
+                        .background(colorResource(id = R.color.tufts_blue))
+                ) {
+                    Text(text = "Sign out", color = Color.White)
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                OutlinedButton(onClick = onClose) {
-                    Text(text = "Cancel")
+                OutlinedButton(
+                    onClick = onClose,
+                    border = BorderStroke(1.dp, Color.Red),
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .clip(CircleShape)
+                        .background(Color.Red)
+                ) {
+                    Text(text = "Cancel", color = Color.White)
                 }
             }
         }
@@ -478,19 +496,17 @@ fun FullScreenSignOutDialog(onClose: () -> Unit, context: Context) {
 )
 @Composable
 fun GreetingPreview() {
+    val context = LocalContext.current
     ApartmentInfoAppTheme {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFF2F4F5)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 40.dp, bottom = 15.dp, top = 15.dp, end = 40.dp)
-            ) {
-
-            }
+            FullScreenSignOutDialog(
+                onClose = { },
+                context = context
+            )
         }
     }
 }

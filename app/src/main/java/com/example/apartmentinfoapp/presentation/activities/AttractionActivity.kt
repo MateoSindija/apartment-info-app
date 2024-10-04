@@ -211,16 +211,16 @@ class AttractionActivity : ComponentActivity() {
                             AboutText(commonCardData)
 
                             Row(modifier = Modifier.padding(top = 50.dp, bottom = 30.dp)) {
-                                if (commonCardData !is CommonCardData.ShopCard && commonCardData !is CommonCardData.AboutUsCard) {
-                                    TextButton(onClick = { componentState = "photos" }) {
-                                        Text(
-                                            text = "Photos",
-                                            color = colorResource(id = R.color.space_cadet),
-                                            fontWeight = FontWeight.W500,
-                                            fontSize = 20.sp
-                                        )
-                                    }
+
+                                TextButton(onClick = { componentState = "photos" }) {
+                                    Text(
+                                        text = "Photos",
+                                        color = colorResource(id = R.color.space_cadet),
+                                        fontWeight = FontWeight.W500,
+                                        fontSize = 20.sp
+                                    )
                                 }
+                                
                                 if (commonCardData is CommonCardData.RestaurantCard) {
                                     TextButton(onClick = { componentState = "contacts" }) {
                                         Text(
