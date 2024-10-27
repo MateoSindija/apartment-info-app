@@ -11,8 +11,10 @@ import com.example.apartmentinfoapp.presentation.states.MessagesState
 
 @Composable
 fun MessagesList(messagesState: MessagesState, modifier: Modifier) {
-    val listOfMessagesData = messagesState.messages.orEmpty()
-
+    // Remove duplicates if exists based on messageId
+    val listOfMessagesData = messagesState.messages
+        ?.distinctBy { it.messageId }
+        .orEmpty()
 
     if (listOfMessagesData.isNotEmpty()) {
         LazyColumn(modifier = modifier) {
